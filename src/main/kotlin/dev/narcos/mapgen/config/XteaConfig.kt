@@ -2,7 +2,6 @@ package dev.narcos.mapgen.config
 
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.toValue
-import dev.narcos.mapgen.common.inject
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -62,7 +61,7 @@ class XteaConfig {
     }
 
     companion object {
-        private val config: XteaConfig by inject()
+        private val config: XteaConfig = XteaConfig()
 
         fun load() = config.load()
 

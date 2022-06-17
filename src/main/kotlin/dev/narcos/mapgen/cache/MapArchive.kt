@@ -1,6 +1,5 @@
 package dev.narcos.mapgen.cache
 
-import dev.narcos.mapgen.common.inject
 import dev.narcos.mapgen.config.XteaConfig
 import net.runelite.cache.IndexType
 import net.runelite.cache.definitions.LocationsDefinition
@@ -13,11 +12,9 @@ class MapArchive private constructor(
 ) : Map<Int, Pair<MapDefinition, LocationsDefinition>> by entries {
 
     companion object {
-        private val cache: GameCache by inject()
-
         const val MAX_REGIONS = 32768
 
-        fun load(): MapArchive {
+        fun load(cache: GameCache): MapArchive {
             val entries = hashMapOf<Int, Pair<MapDefinition, LocationsDefinition>>()
 
             val archive = cache.store.getIndex(IndexType.MAPS)

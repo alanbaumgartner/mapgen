@@ -19,7 +19,7 @@ class TranslatedMap(cm: GlobalCollisionMap) {
 //                println("{cm.regions[it].bits.cardinality()}, ${cm.regions[it].bits.size()}")
                 regions[it] = cm.regions[it]
             } else {
-                println("here, ${count++}")
+//                println("here, ${count++}")
             }
         }
     }
@@ -64,6 +64,27 @@ class TranslatedMap(cm: GlobalCollisionMap) {
             }
         }
         return buffer.array()
+    }
+
+    fun gzipped(): ByteArray {
+        val bytes = ByteArrayOutputStream().use { os ->
+            GZIPOutputStream(os).use { gos ->
+                gos.write(toBytes())
+                gos.finish()
+                os.toByteArray()
+            }
+        }
+//
+//
+//        val os = ByteArrayOutputStream()
+//        val gos = GZIPOutputStream(os)
+//        gos.write(toBytes())
+//        gos.finish()
+//        gos.flush()
+//        gos.close()
+//        val bytes = os.toByteArray()
+//        os.close()
+        return bytes
     }
 
 }

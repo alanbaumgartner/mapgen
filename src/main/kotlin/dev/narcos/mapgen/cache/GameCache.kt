@@ -24,8 +24,8 @@ class GameCache {
         /*
          * Load Archive Data
          */
-        configs = ConfigArchive.load()
-        maps = MapArchive.load()
+        configs = ConfigArchive.load(this)
+        maps = MapArchive.load(this)
     }
 
 }

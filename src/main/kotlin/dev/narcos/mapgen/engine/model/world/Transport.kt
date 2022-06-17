@@ -112,5 +112,5 @@ data class Transport(
 }
 
 fun loadTransport(): List<Transport> {
-    return Json.decodeFromString(Files.readString(Paths.get("C:\\Users\\alanv\\IdeaProjects\\unethicalite\\runelite-client\\src\\main\\resources\\transports.json")))
+    return Json.decodeFromString(Files.readString(Paths.get("src/main/resources/transports.json")))
 }

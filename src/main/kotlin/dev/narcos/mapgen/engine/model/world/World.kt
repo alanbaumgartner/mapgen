@@ -1,7 +1,6 @@
 package dev.narcos.mapgen.engine.model.world
 
 import dev.narcos.mapgen.cache.GameCache
-import dev.narcos.mapgen.common.inject
 import dev.narcos.mapgen.config.XteaConfig
 import dev.narcos.mapgen.engine.model.collision.CollisionFlag
 import dev.narcos.mapgen.engine.model.collision.CollisionMap
@@ -12,10 +11,7 @@ import net.runelite.cache.definitions.MapDefinition
 import net.runelite.cache.region.Region
 import java.io.FileNotFoundException
 
-class World {
-
-    var count = 0
-    private val cache: GameCache by inject()
+class World(val cache: GameCache) {
 
     val collision = CollisionMap()
 
@@ -28,41 +24,6 @@ class World {
             val (map, loc) = cache.maps[regionId] ?: return@forEach
             Region(regionId).loadCollision(map, loc)
         }
-
-        val cm = GlobalCollisionMap()
-
-        XteaConfig.regions.forEach { (regionId, keys) ->
-            for (plane in 0 until MAX_PLANE) {
-                for (x in 0 until 64) {
-                    for (y in 0 until 64) {
-                        val tile = dev.narcos.mapgen.engine.model.map.Region(regionId).toTile(plane).translate(x, y)
-                        val flag = collision[tile.x, tile.y, tile.plane]
-
-                        val north = collision[tile.x, tile.y + 1, tile.plane]
-                        val east = collision[tile.x + 1, tile.y, tile.plane]
-
-                        if (isObstacle(flag)) {
-                            cm.set(tile.x, tile.y, tile.plane, 0, false)
-                            cm.set(tile.x, tile.y, tile.plane, 1, false)
-                        } else {
-                            cm.set(tile.x, tile.y, tile.plane, 0, true)
-                            cm.set(tile.x, tile.y, tile.plane, 1, true)
-
-                            if (isWalled(flag, Direction.NORTH) || isObstacle(north)) {
-                                cm.set(tile.x, tile.y, tile.plane, 0, false)
-                            }
-
-                            if (isWalled(flag, Direction.EAST) || isObstacle(east)) {
-                                cm.set(tile.x, tile.y, tile.plane, 1, false)
-                            }
-                        }
-
-                    }
-                }
-            }
-        }
-        val tm = TranslatedMap(cm)
-        tm.writeToFile()
     }
 
     enum class Direction(val flag: Int) {
@@ -71,7 +32,6 @@ class World {
         SOUTH(0x20),
         EAST(0x8)
     }
-
 
     fun isObstacle(flag: Int): Boolean {
         if (flag == 0) {
@@ -86,10 +46,6 @@ class World {
     }
 
     fun isWalled(flag: Int, direction: Direction): Boolean {
-//        if (flag == 0) {
-//            return false
-//        }
-
         return check(flag, direction.flag)
     }
 
@@ -123,8 +79,7 @@ class World {
                         adjustedPlane--
                     }
                     if (adjustedPlane >= 0) {
-                        val tile =
-                            dev.narcos.mapgen.engine.model.map.Region(this.regionID).toTile(plane).translate(x, y)
+                        val tile = dev.narcos.mapgen.engine.model.map.Region(this.regionID).toTile(plane).translate(x, y)
                         collision.add(tile, CollisionFlag.FLOOR)
                     }
                 }
@@ -154,6 +109,43 @@ class World {
                 collision.addObject(obj)
             }
         }
+    }
+
+    fun dumpCollisionMap(): ByteArray {
+        val cm = GlobalCollisionMap()
+
+        XteaConfig.regions.forEach { (regionId, keys) ->
+            for (plane in 0 until MAX_PLANE) {
+                for (x in 0 until 64) {
+                    for (y in 0 until 64) {
+                        val tile = dev.narcos.mapgen.engine.model.map.Region(regionId).toTile(plane).translate(x, y)
+                        val flag = collision[tile.x, tile.y, tile.plane]
+
+                        val north = collision[tile.x, tile.y + 1, tile.plane]
+                        val east = collision[tile.x + 1, tile.y, tile.plane]
+
+                        if (isObstacle(flag)) {
+                            cm.set(tile.x, tile.y, tile.plane, 0, false)
+                            cm.set(tile.x, tile.y, tile.plane, 1, false)
+                        } else {
+                            cm.set(tile.x, tile.y, tile.plane, 0, true)
+                            cm.set(tile.x, tile.y, tile.plane, 1, true)
+
+                            if (isWalled(flag, Direction.NORTH) || isObstacle(north)) {
+                                cm.set(tile.x, tile.y, tile.plane, 0, false)
+                            }
+
+                            if (isWalled(flag, Direction.EAST) || isObstacle(east)) {
+                                cm.set(tile.x, tile.y, tile.plane, 1, false)
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        val tm = TranslatedMap(cm)
+        return tm.gzipped()
     }
 
     companion object {

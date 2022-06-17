@@ -6,8 +6,8 @@ class ConfigArchive private constructor(
     val objects: ObjectConfig,
 ) {
     companion object {
-        fun load(): ConfigArchive = ConfigArchive(
-            ObjectConfig.load()
+        fun load(cache: GameCache): ConfigArchive = ConfigArchive(
+            ObjectConfig.load(cache)
         )
     }
 }

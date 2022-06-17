@@ -1,8 +1,8 @@
 package dev.narcos.mapgen
 
-import dev.narcos.mapgen.cache.GameCache
+import dev.narcos.mapgen.engine.Engine
 
 fun main() {
-    val gameCache = GameCache()
+    val engine = Engine()
+    engine.start("data/cache/")
 }
-

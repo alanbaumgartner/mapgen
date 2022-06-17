@@ -20,7 +20,6 @@ dependencies {
     implementation("io.guthix:jagex-bytebuf-wrapper:0.2.0")
     implementation("net.runelite:cache:1.8.9")
     implementation("com.uchuhimo:konf:1.1.2")
-    implementation("io.insert-koin:koin-core:3.2.0")
     implementation("com.google.guava:guava:31.1-jre")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
     implementation("io.github.classgraph:classgraph:4.8.146")
@@ -33,6 +32,8 @@ dependencies {
 }
 
 tasks.test {
+    minHeapSize = "1g"
+    maxHeapSize = "2g"
     useJUnitPlatform()
 }
 
