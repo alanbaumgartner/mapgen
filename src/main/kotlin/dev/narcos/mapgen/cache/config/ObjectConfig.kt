@@ -8,7 +8,6 @@ class ObjectConfig private constructor(
     entries: MutableMap<Int, ObjectDefinition> = mutableMapOf(),
 ) : Map<Int, ObjectDefinition> by entries {
     companion object {
-
         fun load(cache: GameCache): ObjectConfig {
             val entries = mutableMapOf<Int, ObjectDefinition>()
 

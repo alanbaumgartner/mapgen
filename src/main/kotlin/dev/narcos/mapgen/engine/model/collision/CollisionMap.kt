@@ -4,11 +4,21 @@ import dev.narcos.mapgen.engine.model.map.Chunk
 import dev.narcos.mapgen.engine.model.map.Tile
 import dev.narcos.mapgen.engine.model.obj.GameObject
 import dev.narcos.mapgen.engine.model.obj.ObjectShape
-import dev.narcos.mapgen.engine.model.world.loadTransport
+import dev.narcos.mapgen.engine.model.collision.unethical.loadTransport
 
 class CollisionMap {
 
+    val doorNames = listOf(
+        "Door",
+        "Gate",
+        "Large door"
+    )
+
+    val transports = loadTransport().map { it.source }.map { Tile(it.x, it.y, it.plane) }
+
+    var count = 0
     val flags: Array<IntArray?> = arrayOfNulls(2048 * 2048 * 4)
+
     fun alloc(chunk: Chunk): IntArray {
         val packed = chunk.packed
         val current = flags[packed]
@@ -78,13 +88,6 @@ class CollisionMap {
         changeFloorDecor(tile, true)
     }
 
-    val doorNames = listOf(
-        "Door",
-        "Gate",
-        "Large door"
-    )
-
-    val transports = loadTransport().map { it.source }.map { Tile(it.x, it.y, it.plane) }
     private fun changeObject(obj: GameObject, add: Boolean) {
         val data = obj.data
         val tile = obj.tile
@@ -94,10 +97,12 @@ class CollisionMap {
         val blockPath = data.interactType != 0
         val blockProjectile = data.isBlocksProjectile
 
+        if (doorNames.contains(data.name) && data.actions.contains("Open") && !transports.contains(tile)) {
+//            println("Door Count ${count++}")
+            return
+        }
+
         if (shape in ObjectShape.WALL_SHAPES && clipType != 0) {
-            if (doorNames.contains(data.name) && data.actions.contains("Open") && !transports.contains(tile)) {
-                return
-            }
             changeWall(tile, rotation, shape, blockProjectile, add)
         } else if (shape in ObjectShape.NORMAL_SHAPES && clipType != 0) {
             var width = data.sizeX
@@ -273,8 +278,14 @@ class CollisionMap {
         change(tile, CollisionFlag.FLOOR_DECORATION, add)
     }
 
-    private fun change(tile: Tile, mask: Int, add: Boolean) = when (add) {
-        true -> add(tile, mask)
-        false -> remove(tile, mask)
+    private fun change(tile: Tile, mask: Int, add: Boolean) {
+        val regionId = tile.toRegion().id
+        if (regionId == 6992 || regionId == 6993) {
+            println("Here $regionId")
+        }
+        when (add) {
+            true -> add(tile, mask)
+            false -> remove(tile, mask)
+        }
     }
 }

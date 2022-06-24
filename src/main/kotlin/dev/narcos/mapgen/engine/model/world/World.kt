@@ -4,6 +4,8 @@ import dev.narcos.mapgen.cache.GameCache
 import dev.narcos.mapgen.config.XteaConfig
 import dev.narcos.mapgen.engine.model.collision.CollisionFlag
 import dev.narcos.mapgen.engine.model.collision.CollisionMap
+import dev.narcos.mapgen.engine.model.collision.unethical.GlobalUnethicalCollisionMap
+import dev.narcos.mapgen.engine.model.collision.unethical.TranslatedMap
 import dev.narcos.mapgen.engine.model.map.Tile
 import dev.narcos.mapgen.engine.model.obj.GameObject
 import net.runelite.cache.definitions.LocationsDefinition
@@ -79,7 +81,8 @@ class World(val cache: GameCache) {
                         adjustedPlane--
                     }
                     if (adjustedPlane >= 0) {
-                        val tile = dev.narcos.mapgen.engine.model.map.Region(this.regionID).toTile(plane).translate(x, y)
+                        val tile =
+                            dev.narcos.mapgen.engine.model.map.Region(this.regionID).toTile(plane).translate(x, y)
                         collision.add(tile, CollisionFlag.FLOOR)
                     }
                 }
@@ -112,7 +115,7 @@ class World(val cache: GameCache) {
     }
 
     fun dumpCollisionMap(): ByteArray {
-        val cm = GlobalCollisionMap()
+        val cm = GlobalUnethicalCollisionMap()
 
         XteaConfig.regions.forEach { (regionId, keys) ->
             for (plane in 0 until MAX_PLANE) {
@@ -125,18 +128,18 @@ class World(val cache: GameCache) {
                         val east = collision[tile.x + 1, tile.y, tile.plane]
 
                         if (isObstacle(flag)) {
-                            cm.set(tile.x, tile.y, tile.plane, 0, false)
-                            cm.set(tile.x, tile.y, tile.plane, 1, false)
+                            cm[tile.x, tile.y, tile.plane, 0] = false
+                            cm[tile.x, tile.y, tile.plane, 1] = false
                         } else {
-                            cm.set(tile.x, tile.y, tile.plane, 0, true)
-                            cm.set(tile.x, tile.y, tile.plane, 1, true)
+                            cm[tile.x, tile.y, tile.plane, 0] = true
+                            cm[tile.x, tile.y, tile.plane, 1] = true
 
                             if (isWalled(flag, Direction.NORTH) || isObstacle(north)) {
-                                cm.set(tile.x, tile.y, tile.plane, 0, false)
+                                cm[tile.x, tile.y, tile.plane, 0] = false
                             }
 
                             if (isWalled(flag, Direction.EAST) || isObstacle(east)) {
-                                cm.set(tile.x, tile.y, tile.plane, 1, false)
+                                cm[tile.x, tile.y, tile.plane, 1] = false
                             }
                         }
 

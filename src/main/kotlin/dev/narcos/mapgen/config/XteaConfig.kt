@@ -21,13 +21,13 @@ class XteaConfig {
             throw FileNotFoundException("Could not load region XTEA keys config file from: data/cache/xteas.json.")
         }
 
-        val entries = config.from.json.file(file).toValue<Array<XteaLoad>>().map { it.toXteaEntry() }
+        val entries = config.from.json.file(file).toValue<Array<Xtea>>().map { it.toXteaEntry() }
         entries.forEach { xteaKeys[it.region] = it.keys }
     }
 
     operator fun get(regionId: Int): IntArray = xteaKeys[regionId] ?: IntArray(4) { 0 }
 
-    data class XteaLoad(
+    data class Xtea(
         val archive: Int,
         val group: Int,
         val name_hash: Int,

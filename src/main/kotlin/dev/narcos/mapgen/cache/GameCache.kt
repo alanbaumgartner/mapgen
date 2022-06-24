@@ -11,9 +11,6 @@ class GameCache {
     val disk: DiskStorage get() = store.storage as DiskStorage
     val archiveCount get() = store.indexes.size
 
-    /*
-     * Cache Archive Data Models
-     */
     lateinit var configs: ConfigArchive private set
     lateinit var maps: MapArchive private set
 
@@ -21,9 +18,6 @@ class GameCache {
         store = Store(directory)
         store.load()
 
-        /*
-         * Load Archive Data
-         */
         configs = ConfigArchive.load(this)
         maps = MapArchive.load(this)
     }
